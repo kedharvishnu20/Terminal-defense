@@ -1,6 +1,32 @@
-system_lock/__pycache__/
-system_lock/logs/
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual Environments ───
 .venv/
-security_monitor/__pycache__/
-security_monitor/logs/  
-security_monitor/keylogs/  
+venv/
+ENV/
+
+# ─── Runtime Logs (generated at runtime) ───
+security_monitor/logs/
+security_monitor/keylogs/
+system_lock/logs/
+
+# ─── IDE / Editor ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── OS ───
+desktop.ini
+ehthumbs.db

@@ -1,54 +1,54 @@
-# 🔒 System Lock Guard
+# 🔒 System Lock Guard v2.0
 
-A **cross-platform** keyboard blocker that activates when your system is unlocked during a configured time window. No popups, no dialogs — the keyboard simply stops working until the secret bypass pattern is entered.
+A **cross-platform** multi-module blocker that controls keyboard, mouse, WiFi, Bluetooth, and USB access during configured time windows. No popups, no dialogs — modules silently activate and deactivate based on schedule and session events.
 
 ## ✨ Features
 
 | Feature | Description |
 |---------|-------------|
-| 🕐 **Time-based blocking** | Configure a time window (e.g., 10 PM – 6 AM) during which the keyboard is blocked |
-| 🔓 **Session-aware** | Detects system unlock events and activates blocking automatically |
-| 🔑 **Secret bypass** | Press ESC 3 times → type password → Enter to unlock |
+| ⌨ **Keyboard Blocking** | Suppresses all key presses via pynput |
+| 🖱 **Mouse Blocking** | Suppresses all mouse movement and clicks |
+| 📶 **WiFi Control** | Disables/enables WiFi adapter (needs admin) |
+| 🔵 **Bluetooth Control** | Disables/enables Bluetooth radio (needs admin) |
+| 🔌 **USB Storage Blocking** | Blocks USB mass storage devices (needs admin) |
+| 🕐 **Time-based Scheduling** | Configure a time window for automatic activation |
+| 🔓 **Session-aware** | Detects system lock/unlock events automatically |
+| 🔑 **Secret Bypass** | ESC × N → type password → Enter to unlock all |
 | 🖥️ **Cross-platform** | Works on Windows, macOS, and Linux |
-| 🐭 **Mouse unaffected** | Only the keyboard is blocked; mouse works normally |
-| 👻 **Invisible** | No popups or visual hints — stealth operation |
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - **Python 3.8+** installed and on PATH
+- **Administrator/sudo** for WiFi, Bluetooth, and USB control
 
 ### Installation
 
 ```bash
-# Clone or download the project, then:
 pip install -r requirements.txt
 ```
 
 ### Running
 
-**Windows:**
+**From project root (recommended):**
 ```batch
-run_guard.bat
+start.bat     →   Option [4] normal mode
+              →   Option [5] test mode
+              →   Option [6] view status
 ```
 
-**macOS / Linux:**
+**Direct:**
 ```bash
-chmod +x run_guard.sh
-./run_guard.sh
-```
-
-**Direct Python:**
-```bash
-python lock_guard.py           # Normal mode
-python lock_guard.py --test    # Test mode (blocks keyboard immediately)
-python lock_guard.py --status  # Show current config & status
+python lock_guard.py             # Normal mode — waits for time window
+python lock_guard.py --test      # Test mode — blocks everything immediately
+python lock_guard.py --status    # Show config & current status
+python lock_guard.py --help      # Usage help
 ```
 
 ## ⚙️ Configuration
 
-Edit `config.json` in the project directory:
+Edit `config.json`:
 
 ```json
 {
@@ -56,7 +56,12 @@ Edit `config.json` in the project directory:
     "block_start_time": "22:00",
     "block_end_time": "06:00",
     "esc_count_required": 3,
-    "password_timeout_seconds": 15
+    "password_timeout_seconds": 15,
+    "block_keyboard": true,
+    "block_mouse": true,
+    "block_wifi": false,
+    "block_bluetooth": false,
+    "block_usb": false
 }
 ```
 
@@ -65,8 +70,13 @@ Edit `config.json` in the project directory:
 | `password` | `unlock123` | Secret password to bypass the lock |
 | `block_start_time` | `22:00` | Start of blocked window (24-hour format) |
 | `block_end_time` | `06:00` | End of blocked window (24-hour format) |
-| `esc_count_required` | `3` | Number of ESC presses to enter password mode |
+| `esc_count_required` | `3` | ESC presses to enter password mode |
 | `password_timeout_seconds` | `15` | Seconds before password entry times out |
+| `block_keyboard` | `true` | Enable/disable keyboard blocking |
+| `block_mouse` | `true` | Enable/disable mouse blocking |
+| `block_wifi` | `false` | Enable/disable WiFi control (needs admin) |
+| `block_bluetooth` | `false` | Enable/disable Bluetooth control (needs admin) |
+| `block_usb` | `false` | Enable/disable USB storage blocking (needs admin) |
 
 ### Time Window Examples
 
@@ -78,62 +88,74 @@ Edit `config.json` in the project directory:
 
 ## 🔑 How to Bypass the Lock
 
-When the keyboard is blocked:
+When modules are blocked:
 
-1. **Press ESC 3 times** (or the configured count)
-2. **Type your password** (nothing will appear on screen — it's captured silently)
+1. **Press ESC 3 times** (or configured count)
+2. **Type your password** (invisible — captured silently)
 3. **Press Enter**
-4. ✅ If correct → keyboard is restored
-5. ❌ If wrong → resets back to blocked mode
+4. ✅ Correct → all modules unblocked
+5. ❌ Wrong → resets back to blocked mode
 
-> **Tip:** During password entry, use **Backspace** to correct mistakes. Press **ESC** to cancel and go back to blocked mode.
+> **Tip:** Use **Backspace** to correct mistakes. Press **ESC** to cancel password entry.
 
 ## 🖥️ Platform Support
 
-| Platform | Session Detection | Keyboard Blocking |
-|----------|-------------------|-------------------|
-| **Windows** | ✅ WTS API (native) | ✅ pynput |
-| **macOS** | ✅ Quartz API | ✅ pynput |
-| **Linux** | ✅ loginctl | ✅ pynput |
+| Platform | Session Detection | Keyboard | Mouse | WiFi | Bluetooth | USB |
+|----------|-------------------|----------|-------|------|-----------|-----|
+| **Windows** | ✅ WTS API | ✅ | ✅ | ✅ netsh | ✅ PowerShell | ✅ Registry |
+| **macOS** | ✅ Quartz | ✅ | ✅ | ✅ networksetup | ⚠️ blueutil | ⚠️ Limited |
+| **Linux** | ✅ loginctl | ✅ | ✅ | ✅ nmcli | ✅ rfkill | ✅ udisksctl |
 
-### Platform-Specific Notes
+### Platform Notes
 
-- **Windows**: May require running as Administrator for full keyboard hook access
-- **macOS**: Requires Accessibility permissions (System Preferences → Security & Privacy → Privacy → Accessibility)
-- **Linux**: May need to be run with `sudo` for keyboard hook access. Some desktop environments may need `xinput` or X11 access
+- **Windows**: May require Administrator for WiFi/Bluetooth/USB control
+- **macOS**: Requires Accessibility permissions; Bluetooth needs `blueutil` (`brew install blueutil`)
+- **Linux**: May need `sudo` for hardware control; some DEs need X11 access
 
-## 📁 Project Structure
+## 📁 Files
 
 ```
-├── lock_guard.py       # Main application
-├── config.json         # Configuration file
+├── lock_guard.py       # Main application (all modules)
+├── config.json         # Configuration
 ├── requirements.txt    # Python dependencies
-├── run_guard.bat       # Windows launcher
-├── run_guard.sh        # macOS/Linux launcher
+├── run_guard.bat       # Windows standalone launcher
+├── run_guard.sh        # macOS/Linux standalone launcher
 ├── README.md           # This file
 └── logs/
     └── lock_guard.log  # Runtime logs
 ```
 
-## 📋 Logs
+## 📋 Log Output
 
-Logs are written to `logs/lock_guard.log` and also printed to the console. The log captures:
-- System lock/unlock events
-- Keyboard block/unblock events
-- Failed and successful bypass attempts
-- Errors and warnings
+Logs use structured formatting with clear sections:
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│      🔒  SYSTEM LOCK GUARD  v2.0                             │
+│      Cross-Platform Multi-Module Blocker                     │
+└──────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📋  CONFIGURATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Platform        : Windows
+  Block Window    : 22:00 → 06:00
+  MODULE STATUS:
+    ⌨  Keyboard   : ✔ ENABLED
+    🖱  Mouse      : ✔ ENABLED
+    📶 WiFi       : ✘ disabled
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
 ## ⚠️ Important Notes
 
 1. **Keep `config.json` safe** — anyone who reads it can bypass the lock
-2. **Test first** — use `--test` mode to verify it works before relying on it
-3. **Don't lose the password** — if you forget it, you'll need to kill the Python process via Task Manager (Ctrl+Alt+Del still works)
-4. **mouse always works** — the lock is keyboard-only by design
+2. **Test first** — use `--test` mode to verify before relying on it
+3. **Don't lose the password** — if forgotten, kill the Python process via Task Manager
+4. **Admin required** — WiFi, Bluetooth, and USB control need elevated privileges
 
 ## 🛑 Emergency: How to Stop
 
-If you need to stop the program:
-
-1. **Ctrl+Alt+Del** → Task Manager → End `python` or `pythonw` process
-2. Or close the command prompt window running the guard
+1. **Ctrl+Alt+Del** → Task Manager → End `python` process
+2. Close the command prompt window running the guard
 3. On Linux: `killall python3` from another terminal
