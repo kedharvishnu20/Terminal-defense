@@ -1,2 +1,6 @@
 system_lock/__pycache__/
 system_lock/logs/
+.venv/
+security_monitor/__pycache__/
+security_monitor/logs/  
+security_monitor/keylogs/  

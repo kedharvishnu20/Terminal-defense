@@ -50,7 +50,7 @@ LOG_DIR.mkdir(exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s │ %(levelname)-7s │ %(message)s",
+    format="%(asctime)s │ %(levelname)-8s │ %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.FileHandler(LOG_DIR / "lock_guard.log", encoding="utf-8"),
@@ -177,7 +177,11 @@ class KeyboardBlocker:
             self._pwd_buffer  = []
             self._last_key_t  = None
 
-        logger.info("⌨  KEYBOARD BLOCKED — ESC×%d then password to unlock", self.esc_required)
+        logger.info("┌─────────────────────────────────────────────────┐")
+        logger.info("│  ⌨  KEYBOARD BLOCKED                             │")
+        logger.info("│  All key presses are now suppressed               │")
+        logger.info("│  Bypass: ESC × %d  →  type password  →  Enter     │", self.esc_required)
+        logger.info("└─────────────────────────────────────────────────┘")
 
         self._listener = self._kb.Listener(
             on_press=self._on_press,
@@ -197,7 +201,9 @@ class KeyboardBlocker:
         if self._listener:
             self._listener.stop()
             self._listener = None
-        logger.info("⌨  KEYBOARD UNBLOCKED")
+        logger.info("┌─────────────────────────────────────────────────┐")
+        logger.info("│  ⌨  KEYBOARD UNBLOCKED — Full access restored    │")
+        logger.info("└─────────────────────────────────────────────────┘")
         if self.on_unlocked:
             self.on_unlocked()
 
@@ -229,7 +235,7 @@ class KeyboardBlocker:
                 if self._esc_count >= self.esc_required:
                     self._in_pwd_mode = True
                     self._pwd_buffer  = []
-                    logger.info("  → Password mode ON — type password + Enter")
+                    logger.info("  🔑 Password mode ON — type password + Enter")
             else:
                 self._esc_count = 0
 
@@ -238,10 +244,10 @@ class KeyboardBlocker:
         if key == kb.Key.enter:
             entered = "".join(self._pwd_buffer)
             if entered == self.password:
-                logger.info("✓ Correct password!")
+                logger.info("  ✅ Correct password — unlocking...")
                 threading.Thread(target=self.stop, daemon=True).start()
             else:
-                logger.warning("✗ Wrong password — reset")
+                logger.warning("  ❌ Wrong password — resetting bypass sequence")
                 self._in_pwd_mode = False
                 self._esc_count   = 0
                 self._pwd_buffer  = []
@@ -249,7 +255,7 @@ class KeyboardBlocker:
             if self._pwd_buffer:
                 self._pwd_buffer.pop()
         elif key == kb.Key.esc:
-            logger.info("  → Password mode OFF")
+            logger.info("  🔑 Password mode cancelled (ESC pressed)")
             self._in_pwd_mode = False
             self._esc_count   = 0
             self._pwd_buffer  = []
@@ -268,7 +274,7 @@ class KeyboardBlocker:
                 if (self._in_pwd_mode
                         and self._last_key_t
                         and time.time() - self._last_key_t > self.pwd_timeout):
-                    logger.info("⌛ Password entry timed out — reset")
+                    logger.info("  ⌛ Password entry timed out (%ds) — reset", self.pwd_timeout)
                     self._in_pwd_mode = False
                     self._esc_count   = 0
                     self._pwd_buffer  = []
@@ -305,7 +311,7 @@ class MouseBlocker:
         )
         self._listener.daemon = True
         self._listener.start()
-        logger.info("🖱  MOUSE BLOCKED")
+        logger.info("  🖱  MOUSE BLOCKED — all movement & clicks suppressed")
 
     def stop(self):
         if not self._blocking:
@@ -314,7 +320,7 @@ class MouseBlocker:
         if self._listener:
             self._listener.stop()
             self._listener = None
-        logger.info("🖱  MOUSE UNBLOCKED")
+        logger.info("  🖱  MOUSE UNBLOCKED — input restored")
 
     @property
     def active(self):
@@ -341,9 +347,9 @@ class WiFiBlocker:
         ok = self._set_state(enable=False)
         if ok:
             self._blocked = True
-            logger.info("📶  WIFI DISABLED")
+            logger.info("  📶 WIFI DISABLED — adapter turned off")
         else:
-            logger.warning("📶  WIFI disable failed (may need admin / sudo)")
+            logger.warning("  📶 WIFI disable FAILED — may need admin/sudo")
 
     def stop(self):
         if not self._blocked:
@@ -351,9 +357,9 @@ class WiFiBlocker:
         ok = self._set_state(enable=True)
         if ok:
             self._blocked = False
-            logger.info("📶  WIFI ENABLED")
+            logger.info("  📶 WIFI RE-ENABLED — adapter restored")
         else:
-            logger.warning("📶  WIFI re-enable failed")
+            logger.warning("  📶 WIFI re-enable FAILED")
 
     @property
     def active(self):
@@ -421,9 +427,9 @@ class BluetoothBlocker:
         ok = self._set_state(enable=False)
         if ok:
             self._blocked = True
-            logger.info("🔵  BLUETOOTH DISABLED")
+            logger.info("  🔵 BLUETOOTH DISABLED — radio turned off")
         else:
-            logger.warning("🔵  BLUETOOTH disable failed (may need admin / sudo)")
+            logger.warning("  🔵 BLUETOOTH disable FAILED — may need admin/sudo")
 
     def stop(self):
         if not self._blocked:
@@ -431,9 +437,9 @@ class BluetoothBlocker:
         ok = self._set_state(enable=True)
         if ok:
             self._blocked = False
-            logger.info("🔵  BLUETOOTH ENABLED")
+            logger.info("  🔵 BLUETOOTH RE-ENABLED — radio restored")
         else:
-            logger.warning("🔵  BLUETOOTH re-enable failed")
+            logger.warning("  🔵 BLUETOOTH re-enable FAILED")
 
     @property
     def active(self):
@@ -487,9 +493,9 @@ class USBBlocker:
         ok = self._set_state(enable=False)
         if ok:
             self._blocked = True
-            logger.info("🔌  USB STORAGE BLOCKED")
+            logger.info("  🔌 USB STORAGE BLOCKED — mass storage disabled")
         else:
-            logger.warning("🔌  USB STORAGE block failed (needs admin / sudo)")
+            logger.warning("  🔌 USB STORAGE block FAILED — needs admin/sudo")
 
     def stop(self):
         if not self._blocked:
@@ -497,9 +503,9 @@ class USBBlocker:
         ok = self._set_state(enable=True)
         if ok:
             self._blocked = False
-            logger.info("🔌  USB STORAGE UNBLOCKED")
+            logger.info("  🔌 USB STORAGE UNBLOCKED — access restored")
         else:
-            logger.warning("🔌  USB STORAGE unblock failed")
+            logger.warning("  🔌 USB STORAGE unblock FAILED")
 
     @property
     def active(self):
@@ -588,11 +594,13 @@ class SessionMonitor:
             def wnd_proc(hwnd, msg, wp, lp):
                 if msg == WM_WTSSESSION_CHANGE:
                     if wp == WTS_UNLOCK:
-                        logger.info("◆ UNLOCKED (Windows)")
+                        logger.info("")
+                        logger.info("◆ SESSION EVENT: System UNLOCKED (Windows)")
                         if self.on_unlock:
                             threading.Thread(target=self.on_unlock, daemon=True).start()
                     elif wp == WTS_LOCK:
-                        logger.info("◆ LOCKED (Windows)")
+                        logger.info("")
+                        logger.info("◆ SESSION EVENT: System LOCKED (Windows)")
                         if self.on_lock:
                             threading.Thread(target=self.on_lock, daemon=True).start()
                     return 0
@@ -642,11 +650,13 @@ class SessionMonitor:
                 rc, out, _ = _run(["loginctl", "show-session", "self", "-p", "LockedHint", "--value"])
                 is_locked = out.lower() == "yes"
                 if was_locked and not is_locked:
-                    logger.info("◆ UNLOCKED (Linux)")
+                    logger.info("")
+                    logger.info("◆ SESSION EVENT: System UNLOCKED (Linux)")
                     if self.on_unlock:
                         threading.Thread(target=self.on_unlock, daemon=True).start()
                 elif not was_locked and is_locked:
-                    logger.info("◆ LOCKED (Linux)")
+                    logger.info("")
+                    logger.info("◆ SESSION EVENT: System LOCKED (Linux)")
                     if self.on_lock:
                         threading.Thread(target=self.on_lock, daemon=True).start()
                 was_locked = is_locked
@@ -664,11 +674,13 @@ class SessionMonitor:
                 rc, out, _ = _run(["sh", "-c", check_cmd])
                 is_locked = out.strip() == "1"
                 if was_locked and not is_locked:
-                    logger.info("◆ UNLOCKED")
+                    logger.info("")
+                    logger.info("◆ SESSION EVENT: System UNLOCKED")
                     if self.on_unlock:
                         threading.Thread(target=self.on_unlock, daemon=True).start()
                 elif not was_locked and is_locked:
-                    logger.info("◆ LOCKED")
+                    logger.info("")
+                    logger.info("◆ SESSION EVENT: System LOCKED")
                     if self.on_lock:
                         threading.Thread(target=self.on_lock, daemon=True).start()
                 was_locked = is_locked
@@ -719,30 +731,41 @@ class LockGuardApp:
         self._log_config()
 
         if self.test_mode:
-            logger.info("╔══════════════════════════════════════════╗")
-            logger.info("║  TEST MODE — blocking all enabled modules ║")
-            logger.info("╚══════════════════════════════════════════╝")
+            logger.info("")
+            logger.info("┌──────────────────────────────────────────────────┐")
+            logger.info("│  🧪  TEST MODE                                   │")
+            logger.info("│  Blocking all enabled modules immediately         │")
+            logger.info("│  Use bypass sequence to unlock                    │")
+            logger.info("└──────────────────────────────────────────────────┘")
             time.sleep(1)
             self._block_all()
         else:
             self.session_monitor.start()
             threading.Thread(target=self._time_check_loop, daemon=True).start()
             if is_in_blocked_window(self.config):
-                logger.info("Current time is in blocked window → activating.")
+                logger.info("")
+                logger.info("⏰ Current time is within blocked window → activating modules")
                 self._block_all()
+            else:
+                logger.info("")
+                logger.info("⏰ Current time is outside blocked window → standing by")
 
         try:
             while self._running:
                 time.sleep(1)
         except KeyboardInterrupt:
-            logger.info("Ctrl+C — stopping.")
+            logger.info("")
+            logger.info("⚡ Ctrl+C received — shutting down gracefully...")
             self.stop()
 
     def stop(self):
         self._running = False
         self._unblock_all()
         self.session_monitor.stop()
-        logger.info("Lock Guard stopped. Goodbye!")
+        logger.info("")
+        logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        logger.info("  Lock Guard stopped. All modules released. Goodbye!")
+        logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     # ── Block / unblock all modules ──────────────────────────────────────────
 
@@ -781,19 +804,24 @@ class LockGuardApp:
         if self.test_mode:
             return
         if is_in_blocked_window(self.config):
-            logger.info("Unlocked during blocked window → blocking all modules")
+            logger.info("")
+            logger.info("◆ SESSION UNLOCKED during blocked window")
+            logger.info("  → Activating all enabled blocking modules")
             self._block_all()
         else:
-            logger.info("Unlocked outside blocked window → no action")
+            logger.info("")
+            logger.info("◆ SESSION UNLOCKED outside blocked window → standing by")
 
     def _on_system_locked(self):
         if self._anything_active():
-            logger.info("System locked → pausing all blocks")
+            logger.info("")
+            logger.info("◆ SESSION LOCKED → pausing all active blocks")
             self._unblock_all()
 
     def _on_kb_unlocked(self):
         """Called on correct password → unblock everything."""
-        logger.info("Password accepted → unblocking all modules")
+        logger.info("")
+        logger.info("🔓 Password bypass accepted — unblocking all modules")
         self._unblock_all()
 
     # ── Periodic time check ──────────────────────────────────────────────────
@@ -802,30 +830,53 @@ class LockGuardApp:
         while self._running:
             time.sleep(30)
             if not is_in_blocked_window(self.config) and self._anything_active():
-                logger.info("Time window ended → unblocking all modules")
+                logger.info("")
+                logger.info("⏰ Blocked time window ended → releasing all modules")
                 self._unblock_all()
 
     # ── Banner / logging ─────────────────────────────────────────────────────
 
     def _log_config(self):
         cfg = self.config
-        logger.info("Platform   : %s", SYSTEM)
-        logger.info("Window     : %s → %s", cfg["block_start_time"], cfg["block_end_time"])
-        logger.info("Keyboard   : %s", "ON" if cfg.get("block_keyboard") else "OFF")
-        logger.info("Mouse      : %s", "ON" if cfg.get("block_mouse") else "OFF")
-        logger.info("WiFi       : %s", "ON" if cfg.get("block_wifi") else "OFF")
-        logger.info("Bluetooth  : %s", "ON" if cfg.get("block_bluetooth") else "OFF")
-        logger.info("USB        : %s", "ON" if cfg.get("block_usb") else "OFF")
+        in_win = is_in_blocked_window(cfg)
+        now = datetime.now().strftime("%H:%M:%S")
+
+        def _toggle(key):
+            return "✔ ENABLED" if cfg.get(key) else "✘ disabled"
+
+        logger.info("")
+        logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        logger.info("  📋  CONFIGURATION")
+        logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        logger.info("  Platform        : %s", SYSTEM)
+        logger.info("  Current Time    : %s", now)
+        logger.info("  Block Window    : %s → %s", cfg["block_start_time"], cfg["block_end_time"])
+        logger.info("  In Window Now?  : %s", "YES ⚡" if in_win else "NO")
+        logger.info("  ESC Required    : %d presses", cfg.get("esc_count_required", 3))
+        logger.info("  Pwd Timeout     : %ds", cfg.get("password_timeout_seconds", 15))
+        logger.info("")
+        logger.info("  MODULE STATUS:")
+        logger.info("    ⌨  Keyboard   : %s", _toggle("block_keyboard"))
+        logger.info("    🖱  Mouse      : %s", _toggle("block_mouse"))
+        logger.info("    📶 WiFi       : %s", _toggle("block_wifi"))
+        logger.info("    🔵 Bluetooth  : %s", _toggle("block_bluetooth"))
+        logger.info("    🔌 USB        : %s", _toggle("block_usb"))
+        logger.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
     def _print_banner(self):
-        banner = """
-╔══════════════════════════════════════════════════════════════════╗
-║           SYSTEM LOCK GUARD v2.0                                 ║
-║      Keyboard │ Mouse │ WiFi │ Bluetooth │ USB Blocker            ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Bypass: Press ESC × N  →  type password  →  Enter               ║
-╚══════════════════════════════════════════════════════════════════╝"""
-        for line in banner.splitlines():
+        lines = [
+            "",
+            "┌──────────────────────────────────────────────────────────────┐",
+            "│                                                              │",
+            "│      🔒  SYSTEM LOCK GUARD  v2.0                             │",
+            "│      Cross-Platform Multi-Module Blocker                     │",
+            "│                                                              │",
+            "│      Modules: Keyboard │ Mouse │ WiFi │ Bluetooth │ USB      │",
+            "│      Bypass:  ESC × N  →  type password  →  Enter            │",
+            "│                                                              │",
+            "└──────────────────────────────────────────────────────────────┘",
+        ]
+        for line in lines:
             logger.info(line)
 
 
@@ -836,27 +887,42 @@ class LockGuardApp:
 def print_status():
     config = load_config()
     in_win = is_in_blocked_window(config)
-    now    = datetime.now().strftime("%H:%M:%S")
+    now    = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def _t(key):
+        return "✔ ENABLED" if config.get(key) else "✘ disabled"
+
+    win_status = "🟢 YES — blocking active" if in_win else "⚪ NO — standing by"
+
     print(f"""
-╔══════════════════════════════════════════════════════════╗
-║                  Lock Guard v2.0 — Status                 ║
-╠══════════════════════════════════════════════════════════╣
-║  Platform      : {SYSTEM:<38}║
-║  Current Time  : {now:<38}║
-║  Block Window  : {config['block_start_time']} → {config['block_end_time']:<31}║
-║  In Window?    : {'YES — active blocking' if in_win else 'NO  — modules free':<38}║
-╠══════════════════════════════════════════════════════════╣
-║  MODULE TOGGLES (from config.json)                        ║
-║  block_keyboard  : {'✔  ENABLED' if config.get('block_keyboard') else '✘  disabled':<36}║
-║  block_mouse     : {'✔  ENABLED' if config.get('block_mouse') else '✘  disabled':<36}║
-║  block_wifi      : {'✔  ENABLED' if config.get('block_wifi') else '✘  disabled':<36}║
-║  block_bluetooth : {'✔  ENABLED' if config.get('block_bluetooth') else '✘  disabled':<36}║
-║  block_usb       : {'✔  ENABLED' if config.get('block_usb') else '✘  disabled':<36}║
-╠══════════════════════════════════════════════════════════╣
-║  Password      : {'*' * len(config['password']):<38}║
-║  ESC Count     : {str(config.get('esc_count_required', 3)):<38}║
-║  Pwd Timeout   : {str(config.get('password_timeout_seconds', 15)) + 's':<38}║
-╚══════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────┐
+│           🔒  LOCK GUARD v2.0 — STATUS REPORT               │
+└──────────────────────────────────────────────────────────────┘
+
+  📅 Current Time    : {now}
+  💻 Platform        : {SYSTEM}
+  ⏰ Block Window    : {config['block_start_time']} → {config['block_end_time']}
+  📡 In Window Now?  : {win_status}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📋  MODULE STATUS  (from config.json)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ⌨  Keyboard        : {_t('block_keyboard')}
+  🖱  Mouse           : {_t('block_mouse')}
+  📶 WiFi            : {_t('block_wifi')}
+  🔵 Bluetooth       : {_t('block_bluetooth')}
+  🔌 USB Storage     : {_t('block_usb')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  🔑  BYPASS SETTINGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Password           : {'*' * len(config['password'])}  ({len(config['password'])} chars)
+  ESC Presses        : {config.get('esc_count_required', 3)}
+  Password Timeout   : {config.get('password_timeout_seconds', 15)}s
+
+──────────────────────────────────────────────────────────────
+  Generated at {now}  •  Lock Guard v2.0
+──────────────────────────────────────────────────────────────
 """)
 
 

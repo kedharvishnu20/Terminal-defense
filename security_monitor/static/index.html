@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Monitor Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --bg2: #141720;
+      --bg3: #1b1f2e;
+      --border: #252a3d;
+      --accent: #4f8ef7;
+      --accent2: #7c5ef7;
+      --green: #22d65f;
+      --red: #ff4d6a;
+      --yellow: #f7c94f;
+      --purple: #b06ef7;
+      --cyan: #3ad8d0;
+      --orange: #f09040;
+      --text: #e2e8f8;
+      --muted: #6b7598;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      background: rgba(34, 214, 95, .12);
+      color: var(--green);
+      border: 1px solid rgba(34, 214, 95, .25);
+    }
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.6s ease infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .5;
+        transform: scale(0.8);
+      }
+    }
+
+    /* ── Stat Cards ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 12px;
+      padding: 18px 24px 0;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      transition: border-color .2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .c-green {
+      color: var(--green);
+    }
+
+    .c-blue {
+      color: var(--accent);
+    }
+
+    .c-yellow {
+      color: var(--yellow);
+    }
+
+    .c-red {
+      color: var(--red);
+    }
+
+    .c-purple {
+      color: var(--purple);
+    }
+
+    .c-cyan {
+      color: var(--cyan);
+    }
+
+    .c-orange {
+      color: var(--orange);
+    }
+
+    /* ── Main grid ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 14px 24px 24px;
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Panels ── */
+    .panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      max-height: 360px;
+    }
+
+    .panel-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .panel-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .panel-body::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    /* ── Log entries ── */
+    .log-entry {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      margin-bottom: 4px;
+      border-left: 3px solid transparent;
+      line-height: 1.5;
+      animation: fadeIn .3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .log-net {
+      background: rgba(79, 142, 247, .07);
+      border-color: var(--accent);
+    }
+
+    .log-dll {
+      background: rgba(124, 94, 247, .07);
+      border-color: var(--accent2);
+    }
+
+    .log-drive {
+      background: rgba(58, 216, 208, .07);
+      border-color: var(--cyan);
+    }
+
+    .log-lg {
+      background: rgba(240, 144, 64, .07);
+      border-color: var(--orange);
+    }
+
+    .log-warn {
+      background: rgba(255, 77, 106, .08);
+      border-color: var(--red);
+    }
+
+    .log-ok {
+      background: rgba(34, 214, 95, .07);
+      border-color: var(--green);
+    }
+
+    .log-ts {
+      color: var(--muted);
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+
+    .badge-net {
+      background: rgba(79, 142, 247, .2);
+      color: var(--accent);
+    }
+
+    .badge-dll {
+      background: rgba(124, 94, 247, .2);
+      color: var(--accent2);
+    }
+
+    .badge-drive {
+      background: rgba(58, 216, 208, .2);
+      color: var(--cyan);
+    }
+
+    .badge-lg {
+      background: rgba(240, 144, 64, .2);
+      color: var(--orange);
+    }
+
+    .badge-warn {
+      background: rgba(255, 77, 106, .2);
+      color: var(--red);
+    }
+
+    .badge-ok {
+      background: rgba(34, 214, 95, .2);
+      color: var(--green);
+    }
+
+    .badge-yellow {
+      background: rgba(247, 201, 79, .2);
+      color: var(--yellow);
+    }
+
+    /* ── Full-width panels ── */
+    .panel-full {
+      grid-column: 1 / -1;
+    }
+
+    /* ── AI Panel ── */
+    .ai-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .ai-input {
+      flex: 1;
+      min-width: 180px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .ai-input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity .2s, transform .1s;
+    }
+
+    .btn:active {
+      transform: scale(.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input {
+      accent-color: var(--accent);
+    }
+
+    .ai-response {
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      min-height: 60px;
+      margin-top: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .ai-response.loading {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .ai-response.error {
+      color: var(--red);
+    }
+
+    .sources-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .source-chip {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      background: rgba(79, 142, 247, .12);
+      color: var(--accent);
+      border: 1px solid rgba(79, 142, 247, .3);
+      text-decoration: none;
+    }
+
+    .source-chip:hover {
+      background: rgba(79, 142, 247, .22);
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .tab {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      color: var(--muted);
+      transition: all .2s;
+    }
+
+    .tab.active {
+      background: rgba(79, 142, 247, .15);
+      border-color: rgba(79, 142, 247, .3);
+      color: var(--accent);
+    }
+
+    /* ── Entropy bar ── */
+    .entropy-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .entropy-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width .4s;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 7px;
+      padding: 4px 9px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all .2s;
+    }
+
+    .icon-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .empty-state {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 24px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🛡</div>
+      <div>
+        <div class="logo-text">Security Monitor</div>
+        <div class="logo-sub">Network · DLL · Drives · Lock Guard · AI</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div id="wsStatus" class="status-badge"><span class="pulse"></span> Connecting…</div>
+      <span id="lastUpdate" style="font-size:11px;color:var(--muted)"></span>
+    </div>
+  </header>
+
+  <!-- ── Stat Cards ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Active Conn</div>
+      <div class="stat-value c-blue" id="statConns">—</div>
+      <div class="stat-sub">TCP/UDP</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Recv/s</div>
+      <div class="stat-value c-green" id="statRecv">—</div>
+      <div class="stat-sub">Ingress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sent/s</div>
+      <div class="stat-value c-purple" id="statSent">—</div>
+      <div class="stat-sub">Egress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DLLs Scanned</div>
+      <div class="stat-value c-yellow" id="statDlls">—</div>
+      <div class="stat-sub">System32</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DLL Suspicious</div>
+      <div class="stat-value c-red" id="statDllSusp">—</div>
+      <div class="stat-sub">≥ 7.2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Drive Files</div>
+      <div class="stat-value c-cyan" id="statDrvSampled">—</div>
+      <div class="stat-sub">Sampled</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Drive Suspicious</div>
+      <div class="stat-value c-red" id="statDrvSusp">—</div>
+      <div class="stat-sub">≥ 7.2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Lock Guard</div>
+      <div class="stat-value c-orange" id="statLgWarn">—</div>
+      <div class="stat-sub">Warnings</div>
+    </div>
+  </div>
+
+  <!-- ── Main Grid ── -->
+  <div class="main-grid">
+
+    <!-- 1. Network Panel -->
+    <div class="panel" id="panelNet">
+      <div class="panel-header">
+        <div class="panel-title">📡 Network Monitor</div>
+        <div class="panel-actions">
+          <div class="tabs" id="netTabs">
+            <div class="tab active" data-tab="live">Live</div>
+            <div class="tab" data-tab="conns">Connections</div>
+            <div class="tab" data-tab="procs">Processes</div>
+          </div>
+          <button class="icon-btn" onclick="refreshNet()">⟳</button>
+        </div>
+      </div>
+      <div class="panel-body" id="netPanel">
+        <div class="empty-state">Waiting for data…</div>
+      </div>
+    </div>
+
+    <!-- 2. DLL Entropy Panel -->
+    <div class="panel" id="panelDll">
+      <div class="panel-header">
+        <div class="panel-title">🔬 DLL Entropy</div>
+        <div class="panel-actions">
+          <div class="tabs" id="dllTabs">
+            <div class="tab active" data-tab="all">All</div>
+            <div class="tab" data-tab="suspicious">⚠ Suspicious</div>
+          </div>
+          <button class="icon-btn" onclick="refreshDll()">⟳</button>
+        </div>
+      </div>
+      <div class="panel-body" id="dllPanel">
+        <div class="empty-state">Scanning…</div>
+      </div>
+    </div>
+
+    <!-- 3. Drive Entropy Panel -->
+    <div class="panel" id="panelDrive">
+      <div class="panel-header">
+        <div class="panel-title">💽 System Drive Entropy</div>
+        <div class="panel-actions">
+          <div class="tabs" id="drvTabs">
+            <div class="tab active" data-tab="all">All</div>
+            <div class="tab" data-tab="suspicious">⚠ Suspicious</div>
+          </div>
+          <button class="icon-btn" onclick="refreshDrive()">⟳</button>
+        </div>
+      </div>
+      <div class="panel-body" id="drivePanel">
+        <div class="empty-state">Drive scan starts ~10s after launch…</div>
+      </div>
+    </div>
+
+    <!-- 4. Lock Guard Panel -->
+    <div class="panel" id="panelLg">
+      <div class="panel-header">
+        <div class="panel-title">🔒 Lock Guard Logs</div>
+        <div class="panel-actions">
+          <div class="tabs" id="lgTabs">
+            <div class="tab active" data-tab="all">All</div>
+            <div class="tab" data-tab="warn">Warnings</div>
+          </div>
+          <button class="icon-btn" onclick="refreshLg()">⟳</button>
+        </div>
+      </div>
+      <div class="panel-body" id="lgPanel">
+        <div class="empty-state">No lock guard logs found</div>
+      </div>
+    </div>
+
+    <!-- 5. AI Panel (full width) -->
+    <div class="panel panel-full">
+      <div class="panel-header">
+        <div class="panel-title">🤖 Meta AI Security Analysis</div>
+      </div>
+      <div class="panel-body" style="max-height:none">
+        <div class="ai-controls">
+          <input class="ai-input" id="aiQuestion" placeholder="Ask about the logs… (blank = auto-analysis)" />
+          <label class="checkbox-label"><input type="checkbox" id="chkNet" checked /> Net</label>
+          <label class="checkbox-label"><input type="checkbox" id="chkDll" checked /> DLL</label>
+          <label class="checkbox-label"><input type="checkbox" id="chkDrv" checked /> Drive</label>
+          <label class="checkbox-label"><input type="checkbox" id="chkLg" /> LockGuard</label>
+          <button class="btn btn-primary" id="analyzeBtn" onclick="runAnalysis()">⚡ Analyze</button>
+          <button class="btn btn-secondary" onclick="loadAiHistory()">📜 History</button>
+        </div>
+        <div id="aiResponse" class="ai-response loading">Click Analyze to send logs to Meta AI for analysis.</div>
+        <div id="aiSources" class="sources-row"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ── Utilities ── */
+    function fmt(n) { if (n == null || n === '?') return '—'; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K'; return String(n); }
+    function fmtB(n) { if (!n) return '0 B'; const k = 1024, s = ['B', 'KB', 'MB', 'GB']; const i = Math.floor(Math.log(n) / Math.log(k)); return (n / Math.pow(k, i)).toFixed(1) + ' ' + s[i]; }
+    function timeAgo(ts) { try { const s = Math.floor((Date.now() - new Date(ts)) / 1000); if (s < 60) return s + 's ago'; if (s < 3600) return Math.floor(s / 60) + 'm ago'; return new Date(ts).toLocaleTimeString(); } catch { return ts || ''; } }
+    function eColor(e) { return e >= 7.2 ? 'var(--red)' : e >= 6.5 ? 'var(--yellow)' : 'var(--green)'; }
+
+    /* ── State ── */
+    let netTab = 'live', dllTab = 'all', drvTab = 'all', lgTab = 'all';
+    let netCache = [], dllCache = [], drvCache = [], lgCache = [];
+
+    /* ── Tab click wiring ── */
+    document.querySelectorAll('.tabs').forEach(el => {
+      el.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+          el.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          const v = this.dataset.tab;
+          const panelId = el.id;
+          if (panelId === 'netTabs') { netTab = v; renderNet(); }
+          else if (panelId === 'dllTabs') { dllTab = v; renderDll(); }
+          else if (panelId === 'drvTabs') { drvTab = v; renderDrive(); }
+          else if (panelId === 'lgTabs') { lgTab = v; renderLg(); }
+        });
+      });
+    });
+
+    /* ── Summary ── */
+    async function loadSummary() {
+      try {
+        const d = await (await fetch('/api/logs/summary')).json();
+        document.getElementById('statConns').textContent = fmt(d.network.active_connections);
+        document.getElementById('statRecv').textContent = fmtB(d.network.bytes_recv_per_sec) + '/s';
+        document.getElementById('statSent').textContent = fmtB(d.network.bytes_sent_per_sec) + '/s';
+        document.getElementById('statDlls').textContent = fmt(d.dll.total_scanned);
+        document.getElementById('statDllSusp').textContent = fmt(d.dll.suspicious_count);
+        document.getElementById('statDrvSampled').textContent = fmt(d.drive.total_sampled);
+        document.getElementById('statDrvSusp').textContent = fmt(d.drive.suspicious_count);
+        document.getElementById('statLgWarn').textContent = fmt(d.lockguard.warnings);
+        document.getElementById('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString();
+      } catch (e) { console.warn('Summary fail', e); }
+    }
+
+    /* ═══ NETWORK ═══ */
+    async function refreshNet() { netCache = (await (await fetch('/api/logs/network?n=60')).json()).records; renderNet(); loadSummary(); }
+    function renderNet() {
+      const p = document.getElementById('netPanel'), recs = netCache;
+      if (!recs.length) { p.innerHTML = '<div class="empty-state">No data yet</div>'; return; }
+      if (netTab === 'live') {
+        const io = recs.filter(r => r.type === 'net_io_delta').slice(-15);
+        p.innerHTML = io.length ? io.map(r => `<div class="log-entry log-net"><div class="log-ts">${timeAgo(r.timestamp)}</div><span class="badge badge-net">I/O</span> ↑<b>${fmtB(r.bytes_sent_sec || 0)}/s</b> ↓<b>${fmtB(r.bytes_recv_sec || 0)}/s</b> pkts ↑${fmt(r.pkts_sent_sec)} ↓${fmt(r.pkts_recv_sec)}${r.errin || r.errout ? `<br><span class="badge badge-warn">err in:${r.errin} out:${r.errout}</span>` : ''}</div>`).join('') : '<div class="empty-state">No I/O data</div>';
+      } else if (netTab === 'conns') {
+        const c = recs.filter(r => r.type === 'connections').slice(-1)[0];
+        if (!c) { p.innerHTML = '<div class="empty-state">No data</div>'; return; }
+        p.innerHTML = `<div style="margin-bottom:8px;font-size:11px;color:var(--muted)">Total: <b style="color:var(--accent)">${c.total}</b></div>` + (c.connections || []).slice(0, 30).map(x => `<div class="log-entry log-net" style="font-size:10.5px"><span class="badge badge-net">${x.status}</span> ${x.laddr}→${x.raddr} <span style="color:var(--muted)">pid:${x.pid || '?'}</span></div>`).join('');
+      } else {
+        const pr = recs.filter(r => r.type === 'net_processes').slice(-1)[0];
+        if (!pr) { p.innerHTML = '<div class="empty-state">No data</div>'; return; }
+        p.innerHTML = (pr.processes || []).map(x => `<div class="log-entry log-net"><span class="badge badge-net">PID ${x.pid}</span> <b>${x.name}</b><span style="float:right;color:var(--accent)">${x.established_connections} conn</span></div>`).join('');
+      }
+    }
+
+    /* ═══ DLL ENTROPY ═══ */
+    async function refreshDll() { dllCache = (await (await fetch('/api/logs/dll?n=200')).json()).records.filter(r => r.type === 'dll_entropy').sort((a, b) => b.entropy - a.entropy); renderDll(); loadSummary(); }
+    function renderDll() { renderEntropyPanel('dllPanel', dllCache, dllTab, 'log-dll', 'badge-dll'); }
+
+    /* ═══ DRIVE ENTROPY ═══ */
+    async function refreshDrive() { drvCache = (await (await fetch('/api/logs/drive?n=200')).json()).records.filter(r => r.type === 'drive_entropy').sort((a, b) => b.entropy - a.entropy); renderDrive(); loadSummary(); }
+    function renderDrive() { renderEntropyPanel('drivePanel', drvCache, drvTab, 'log-drive', 'badge-drive'); }
+
+    /* ── Shared entropy renderer ── */
+    function renderEntropyPanel(panelId, records, tab, logClass, badgeClass) {
+      const p = document.getElementById(panelId);
+      let recs = records;
+      if (tab === 'suspicious') recs = recs.filter(r => r.suspicious);
+      if (!recs.length) { p.innerHTML = '<div class="empty-state">' + (tab === 'suspicious' ? '✅ No suspicious files' : 'Waiting for scan…') + '</div>'; return; }
+      p.innerHTML = recs.slice(0, 50).map(r => {
+        const pct = (r.entropy / 8 * 100).toFixed(1), col = eColor(r.entropy);
+        return `<div class="log-entry ${r.suspicious ? 'log-warn' : logClass}" style="padding:7px 10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+        <span style="font-weight:600;font-size:11px">${r.name}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:${col}">${r.entropy.toFixed(3)}</span>
+      </div>
+      <div class="entropy-bar"><div class="entropy-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:10px;color:var(--muted)">
+        <span>${fmtB(r.size_bytes)}${r.drive ? ' · ' + r.drive : ''}</span>
+        ${r.suspicious ? '<span class="badge badge-warn">⚠ HIGH</span>' : ''}
+        <span>${timeAgo(r.timestamp)}</span>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    /* ═══ LOCK GUARD ═══ */
+    async function refreshLg() { lgCache = (await (await fetch('/api/logs/lockguard?n=100')).json()).records; renderLg(); loadSummary(); }
+    function renderLg() {
+      const p = document.getElementById('lgPanel');
+      let recs = lgCache;
+      if (lgTab === 'warn') recs = recs.filter(r => ['WARNING', 'ERROR', 'CRITICAL'].includes(r.level));
+      if (!recs.length) { p.innerHTML = '<div class="empty-state">' + (lgTab === 'warn' ? '✅ No warnings' : 'No Lock Guard logs found.<br><span style="font-size:10px">Ensure system_lock is running.</span>') + '</div>'; return; }
+      p.innerHTML = recs.slice(-50).map(r => {
+        const isWarn = ['WARNING', 'ERROR', 'CRITICAL'].includes(r.level);
+        return `<div class="log-entry ${isWarn ? 'log-warn' : 'log-lg'}">
+      <div class="log-ts">${r.timestamp}</div>
+      <span class="badge ${isWarn ? 'badge-warn' : 'badge-lg'}">${r.level || 'LOG'}</span>
+      &nbsp;${r.message}
+    </div>`;
+      }).join('');
+    }
+
+    /* ═══ AI ANALYSIS ═══ */
+    async function runAnalysis() {
+      const btn = document.getElementById('analyzeBtn'), out = document.getElementById('aiResponse'), src = document.getElementById('aiSources');
+      btn.disabled = true; out.className = 'ai-response loading';
+      out.textContent = '⏳ Analyzing with Meta AI… (10-30s)'; src.innerHTML = '';
+      try {
+        const resp = await fetch('/api/analyze', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+            context: document.getElementById('aiQuestion').value.trim(),
+            include_network: document.getElementById('chkNet').checked,
+            include_dll: document.getElementById('chkDll').checked,
+            include_drive: document.getElementById('chkDrv').checked,
+            include_lockguard: document.getElementById('chkLg').checked,
+            n_records: 30
+          })
+        });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const d = await resp.json();
+        out.className = 'ai-response'; out.textContent = d.analysis;
+        if (d.sources && d.sources.length) {
+          src.innerHTML = d.sources.map(s => `<a class="source-chip" href="${s.link}" target="_blank">🔗 ${s.title}</a>`).join('');
+        }
+      } catch (e) { out.className = 'ai-response error'; out.textContent = '❌ ' + e.message; }
+      finally { btn.disabled = false; }
+    }
+    async function loadAiHistory() {
+      const d = await (await fetch('/api/logs/ai?n=5')).json(), out = document.getElementById('aiResponse');
+      if (!d.records.length) { out.textContent = 'No previous analyses.'; return; }
+      const l = d.records[d.records.length - 1]; out.className = 'ai-response';
+      out.textContent = `[${l.timestamp}]\n\n${l.response}`;
+    }
+
+    /* ═══ WEBSOCKET ═══ */
+    function connectWS() {
+      const ws = new WebSocket(`ws://${location.host}/ws/logs`);
+      const badge = document.getElementById('wsStatus');
+      ws.onopen = () => { badge.innerHTML = '<span class="pulse"></span> Live'; badge.style.color = 'var(--green)'; };
+      ws.onmessage = ev => {
+        const msg = JSON.parse(ev.data); if (msg.type === 'ping') return;
+        if (msg.type === 'logs') {
+          msg.entries.forEach(e => {
+            if (e.source === 'network') netCache.push(e.data);
+            if (e.source === 'dll') dllCache.push(e.data);
+            if (e.source === 'drive') drvCache.push(e.data);
+          });
+          renderNet(); renderDll(); renderDrive(); loadSummary();
+        }
+      };
+      ws.onclose = () => { badge.innerHTML = '<span style="background:var(--red)" class="pulse"></span> Reconnecting…'; badge.style.color = 'var(--red)'; setTimeout(connectWS, 3000); };
+    }
+
+    /* ═══ INIT ═══ */
+    (async () => {
+      await Promise.all([refreshNet(), refreshDll(), refreshDrive(), refreshLg(), loadSummary()]);
+      connectWS();
+      setInterval(() => { refreshNet(); refreshLg(); loadSummary(); }, 15000);
+      setInterval(refreshDll, 60000);
+      setInterval(refreshDrive, 90000);
+    })();
+  </script>
+</body>
+
+</html>

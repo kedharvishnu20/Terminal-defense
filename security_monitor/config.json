@@ -1,0 +1,4 @@
+{
+    "high_entropy_threshold": 7.2,
+    "high_connection_threshold": 100
+}
