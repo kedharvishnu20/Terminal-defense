@@ -1,0 +1,72 @@
+2026-02-21 20:55:51 │ INFO    │ Configuration loaded from C:\MY SPACE\MY LAPTOP\project works\HELPING OTHERS\karthik\config.json
+2026-02-21 20:58:13 │ INFO    │ Configuration loaded from C:\MY SPACE\MY LAPTOP\project works\HELPING OTHERS\karthik\config.json
+2026-02-21 20:59:40 │ INFO    │ Configuration loaded from C:\MY SPACE\MY LAPTOP\project works\HELPING OTHERS\karthik\config.json
+2026-02-21 20:59:40 │ INFO    │ ╔══════════════════════════════════════════════════════════════════╗
+2026-02-21 20:59:40 │ INFO    │ ║                                                                  ║
+2026-02-21 20:59:40 │ INFO    │ ║              ╔═╗╦ ╦╔═╗╔╦╗╔═╗╔╦╗                                ║
+2026-02-21 20:59:40 │ INFO    │ ║              ╚═╗╚╦╝╚═╗ ║ ║╣ ║║║                                ║
+2026-02-21 20:59:40 │ INFO    │ ║              ╚═╝ ╩ ╚═╝ ╩ ╚═╝╩ ╩                                ║
+2026-02-21 20:59:40 │ INFO    │ ║                                                                  ║
+2026-02-21 20:59:40 │ INFO    │ ║                   LOCK  GUARD  v1.0                              ║
+2026-02-21 20:59:40 │ INFO    │ ║           Cross-Platform Keyboard Blocker                        ║
+2026-02-21 20:59:40 │ INFO    │ ║                                                                  ║
+2026-02-21 20:59:40 │ INFO    │ ╠══════════════════════════════════════════════════════════════════╣
+2026-02-21 20:59:40 │ INFO    │ ║  Blocks keyboard during configured time windows.                ║
+2026-02-21 20:59:40 │ INFO    │ ║  Bypass: Press ESC × N  →  type password  →  Enter              ║
+2026-02-21 20:59:40 │ INFO    │ ╚══════════════════════════════════════════════════════════════════╝
+2026-02-21 20:59:40 │ INFO    │ Platform: Windows
+2026-02-21 20:59:40 │ INFO    │ Blocked time window: 20:00 → 21:00
+2026-02-21 20:59:40 │ INFO    │ ESC presses required: 3
+2026-02-21 20:59:40 │ INFO    │ Password timeout: 15s
+2026-02-21 20:59:40 │ INFO    │ ╔══════════════════════════════════════════╗
+2026-02-21 20:59:40 │ INFO    │ ║        RUNNING IN TEST MODE              ║
+2026-02-21 20:59:40 │ INFO    │ ║  Keyboard will be blocked immediately!   ║
+2026-02-21 20:59:40 │ INFO    │ ║  Press ESC 3 times + password to unlock  ║
+2026-02-21 20:59:40 │ INFO    │ ╚══════════════════════════════════════════╝
+2026-02-21 20:59:42 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 20:59:42 │ INFO    │   KEYBOARD BLOCKED — All keys are suppressed
+2026-02-21 20:59:42 │ INFO    │   Bypass: Press ESC 3 times → type password → Enter
+2026-02-21 20:59:42 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:01:55 │ INFO    │ Received signal 2. Shutting down...
+2026-02-21 21:01:55 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:01:55 │ INFO    │   KEYBOARD UNBLOCKED — Full access restored
+2026-02-21 21:01:55 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:01:55 │ INFO    │ User bypassed the lock with correct password. Full access granted.
+2026-02-21 21:01:55 │ INFO    │ Session monitor stopped.
+2026-02-21 21:01:55 │ INFO    │ Lock Guard stopped. Goodbye!
+2026-02-21 21:02:08 │ INFO    │ Configuration loaded from C:\MY SPACE\MY LAPTOP\project works\HELPING OTHERS\karthik\config.json
+2026-02-21 21:02:08 │ INFO    │ ╔══════════════════════════════════════════════════════════════════╗
+2026-02-21 21:02:08 │ INFO    │ ║                                                                  ║
+2026-02-21 21:02:08 │ INFO    │ ║              ╔═╗╦ ╦╔═╗╔╦╗╔═╗╔╦╗                                ║
+2026-02-21 21:02:08 │ INFO    │ ║              ╚═╗╚╦╝╚═╗ ║ ║╣ ║║║                                ║
+2026-02-21 21:02:08 │ INFO    │ ║              ╚═╝ ╩ ╚═╝ ╩ ╚═╝╩ ╩                                ║
+2026-02-21 21:02:08 │ INFO    │ ║                                                                  ║
+2026-02-21 21:02:08 │ INFO    │ ║                   LOCK  GUARD  v1.0                              ║
+2026-02-21 21:02:08 │ INFO    │ ║           Cross-Platform Keyboard Blocker                        ║
+2026-02-21 21:02:08 │ INFO    │ ║                                                                  ║
+2026-02-21 21:02:08 │ INFO    │ ╠══════════════════════════════════════════════════════════════════╣
+2026-02-21 21:02:08 │ INFO    │ ║  Blocks keyboard during configured time windows.                ║
+2026-02-21 21:02:08 │ INFO    │ ║  Bypass: Press ESC × N  →  type password  →  Enter              ║
+2026-02-21 21:02:08 │ INFO    │ ╚══════════════════════════════════════════════════════════════════╝
+2026-02-21 21:02:08 │ INFO    │ Platform: Windows
+2026-02-21 21:02:08 │ INFO    │ Blocked time window: 20:00 → 21:00
+2026-02-21 21:02:08 │ INFO    │ ESC presses required: 3
+2026-02-21 21:02:08 │ INFO    │ Password timeout: 15s
+2026-02-21 21:02:08 │ INFO    │ ╔══════════════════════════════════════════╗
+2026-02-21 21:02:08 │ INFO    │ ║        RUNNING IN TEST MODE              ║
+2026-02-21 21:02:08 │ INFO    │ ║  Keyboard will be blocked immediately!   ║
+2026-02-21 21:02:08 │ INFO    │ ║  Press ESC 3 times + password to unlock  ║
+2026-02-21 21:02:08 │ INFO    │ ╚══════════════════════════════════════════╝
+2026-02-21 21:02:10 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:02:10 │ INFO    │   KEYBOARD BLOCKED — All keys are suppressed
+2026-02-21 21:02:10 │ INFO    │   Bypass: Press ESC 3 times → type password → Enter
+2026-02-21 21:02:10 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:02:14 │ INFO    │ Password mode activated — type your password and press Enter
+2026-02-21 21:02:18 │ INFO    │ ✓ Correct password entered!
+2026-02-21 21:02:18 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:02:18 │ INFO    │   KEYBOARD UNBLOCKED — Full access restored
+2026-02-21 21:02:18 │ INFO    │ ═══════════════════════════════════════════════
+2026-02-21 21:02:18 │ INFO    │ User bypassed the lock with correct password. Full access granted.
+2026-02-21 21:02:53 │ INFO    │ Received signal 2. Shutting down...
+2026-02-21 21:02:53 │ INFO    │ Session monitor stopped.
+2026-02-21 21:02:53 │ INFO    │ Lock Guard stopped. Goodbye!

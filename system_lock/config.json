@@ -1,0 +1,7 @@
+{
+    "password": "unlock123",
+    "block_start_time": "20:00",
+    "block_end_time": "21:00",
+    "esc_count_required": 3,
+    "password_timeout_seconds": 15
+}
